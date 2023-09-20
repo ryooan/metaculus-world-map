@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "jquery-csv": "^1.0.21",
+    "rainbowvis.js": "^1.1.1"
+  }
+}

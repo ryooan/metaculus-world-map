@@ -1,0 +1,213 @@
+html,body {
+	height: auto;
+	min-height: 100%;
+	padding-bottom: 100px;
+	font-family: sans-serif;
+	
+}
+
+h1 {
+	margin-top: 40px;
+	margin-bottom: 5px;
+}
+
+#USContainer {
+	display: block;
+	text-align: center;
+	padding: 20px;
+	visibility: hidden;
+	position:absolute;
+}
+
+#USForecasts {
+	display: none;
+}
+
+#WorldContainer {
+	display: block;
+	text-align: center;
+	padding: 20px;
+	overflow: hidden;
+}
+
+#mapContainer {
+	display: inline-block;
+	text-align: center;
+	position: relative;
+}
+
+#USButton {
+	display: inline-block;
+	text-align: center;
+	position: relative;
+	margin-left: 100px;
+	margin-right: 100px;
+}
+
+#open_legend {
+	position: absolute;
+	top: 35px;
+	left: 0px;
+	z-index: 1;
+	margin: 0px;
+	font-size:12px;
+	background-color:#4EB5AC;
+	width: 120px;
+	border-style: solid;
+	border:1px solid black;
+	border-radius: 5px;
+}
+
+#closed_legend {
+	position: absolute;
+	top: 55px;
+	left: 0px;
+	z-index: 1;
+	margin: 0px;
+	font-size:12px;
+	background-color:#C1A35E;
+	width: 120px;
+	border-style: solid;
+	border:1px solid black;
+	border-radius: 5px;
+}
+
+#header {
+	text-align: center;
+}
+
+#testinput {
+	z-index: 1;
+}
+
+.legendText {
+	margin: 3px;
+}
+
+.forecastHeader {
+	text-align: center;
+}
+
+.forecastList {
+	display: inline-block;
+	justify-content: center;
+	width: 100%;
+	margin: auto;
+	text-align: center;
+}
+
+.forecastListCountry {
+	display: none;
+	justify-content: center;
+	width: 100%;
+	margin: auto;
+	text-align: center;
+}
+
+.embedWrapper {
+	display: inline-block;
+	overflow: hidden;
+	margin: 20px 20px;
+	border-radius: 10px;
+	box-shadow: black 0px 2px 8px 0px;
+	width: 450px;
+	height: 375px;
+}
+
+.stateGroup {
+    transition-duration: 0.1s;
+    transform-origin: center;
+    transform-box:fill-box;
+}
+
+
+.stateGroup:hover {
+    /*transform: scale(1.5);*/
+}
+
+.stateGroup:hover .statePath {
+	stroke: white;
+}
+
+.stateLabel, .stateEVs, .stateProbs, .evHoverText {
+	font-family: sans-serif;
+	font-size: 12px;
+	fill: white;
+	/*font-weight: bold;*/
+	
+	paint-order: stroke;
+    stroke: #000000;
+    stroke-width: 3px;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+}
+
+.evBarText {
+	font-family: sans-serif;
+	font-size: 16px;
+	fill: black;
+	font-weight: bold;
+}
+
+.evBarTextD {
+	font-family: sans-serif;
+	font-size: 16px;
+	fill: DarkSlateBlue;
+	font-weight: bold;
+}
+
+.evBarTextR {
+	font-family: sans-serif;
+	font-size: 16px;
+	fill: FireBrick;
+	font-weight: bold;
+}
+
+.stateGroup:hover text {
+	filter: url(#textBG);
+	display: block;
+}
+
+.stateProbs {
+	display: none;
+}
+
+.evHoverText {
+	display: none;
+}
+
+.evGroup:hover text {
+	filter: url(#evTextBG);
+	display: block;
+}
+
+.load-more {
+	align-items: center;
+    border-radius: 27px;
+    cursor: pointer;
+    display: block;
+    height: 32px;
+    margin: 10px auto;
+    padding: 8px 13px;
+    position: relative;
+}
+
+svg {
+	overflow: visible;
+}
+
+/*
+.stateBox {
+	fill: #DCDCDC;
+	fill: url(#grad);
+	stroke-width:0;
+	display:none;
+	opacity:0.9;
+}
+*/
+
+/*
+radialGradient {
+	stop-color:yellow;
+}
+*/
