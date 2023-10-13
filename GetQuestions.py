@@ -35,7 +35,7 @@ for url_name, url in urls.items():
         sub_question_id = sub_question.get("id", "N/A")
         sub_question_label = sub_question.get("sub_question_label", "N/A")
         active_state = sub_question.get("active_state", "N/A")
-        community_prediction = sub_question.get("community_prediction", {}).get("full", {})
+        community_prediction = sub_question.get("community_prediction", {}).get("full", {}) if sub_question.get("community_prediction", {}) else {}
         q2 = community_prediction.get("q2", "N/A")
 
         csv_data.append([page_url, title, sub_question_id, sub_question_label, active_state, q2])
@@ -90,7 +90,7 @@ while True:
         question_id = row.get("id", "N/A")
         activity = row.get("activity", "N/A")
         active_state = row.get("active_state", "N/A")
-        community_prediction = row.get("community_prediction", {}).get("full", {})
+        community_prediction = row.get("community_prediction", {}).get("full", {}) if row.get("community_prediction", {}) else {}
         q2 = community_prediction.get("q2", "N/A") if community_prediction else "N/A"
         
         # get resolution criteria and other details for all non-subquestions.
