@@ -21,7 +21,7 @@ function NiceCountryInput(domElement) {
     this.i18nall = this.escapeHTML(domElement.dataset.i18nall || 'All');
     this.i18nnofilter = this.escapeHTML(domElement.dataset.i18nnofilter || "None");
     /*create DOM elements only when not already initialized */
-    domElement.insertAdjacentHTML( 'beforeend',"<div class='niceCountryInputMenu'><span class='niceCountryInputMenuDefaultText'><a><img class='niceCountryInputMenuCountryFlag' src='' /><span>"+this.i18nwait+"…</span></a></span><div class='niceCountryInputMenuDropdown'><span style='font-size: 10px;'>▼</span></div></div>");
+    domElement.insertAdjacentHTML( 'beforeend',"<div class='niceCountryInputMenu'><span class='niceCountryInputMenuDefaultText'><a><img class='niceCountryInputMenuCountryFlag' src='' /><span>"+this.i18nwait+"…</span></a></span><div class='niceCountryInputMenuDropdown'><span class='fa-solid fa-caret-down'></span></div></div>");
     domElement.insertAdjacentHTML( 'beforeend',"<div class='niceCountryInputMenuFilter niceCountryInputHiddenCls'><input placeholder='"+this.i18nfilter+"…'/></div>");
     domElement.insertAdjacentHTML( 'beforeend',"<div class='niceCountryInputMenuDropdownContent niceCountryInputHiddenCls' />");
     domElement.insertAdjacentHTML( 'beforeend',"<input class='niceCountryInputMenuInputHidden' type='hidden'/>");

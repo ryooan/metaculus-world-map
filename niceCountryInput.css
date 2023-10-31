@@ -7,9 +7,11 @@
 
 .niceCountryInputMenu {
     background: white !important;
-    color: black !important;
-    border: 1px solid #a8a8a8;
+    color: #283441 !important;
+    border: 1px solid #A9C0D6;
     cursor: pointer;
+    border-radius: 4px;
+    padding-top: 2px;
     /*
     font-family: Arial;
     font-size: 12px;
@@ -17,11 +19,12 @@
 }
 
 .niceCountryInputMenuDefaultText {
-    width: 270px;
-    display: inline-block;
+    width: 250px;
+    display: flex;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    height: 36px;
 }
 
 .niceCountryInputMenuDefaultText a:hover {
@@ -29,23 +32,26 @@
 }
 
 .niceCountryInputMenu a {
-    color: black !important;
+    color: #283441 !important;
+    display:flex;
+    align-items: center;
+    justify-content: start;
 }
+
 
 .niceCountryInputMenuDropdown {
     /*border-left: 1px solid #a8a8a8;*/
     height: 25px;
     width: 21px;
-    float: right;
     line-height: 25px;
-    text-align: center;
-    position: relative;
+    position: absolute;
     right: 0;
-    color: black;
+    top: 7px;
+    color: #A9C0D6;
 }
 
 .niceCountryInputMenuDropdownContent {
-    border: 1px solid #a8a8a8;
+    border: 1px solid #A9C0D6;
     border-top: 0;
     max-height: 200px;
     overflow-y: scroll;
@@ -53,18 +59,33 @@
 }
 
 .niceCountryInputMenuDropdownContent a {
-    height: 25px;
-    line-height: 25px;
-    display: block;
+    height: 28px;
+    display: flex;
     width: 100%;
-    color: black !important;
+    color: #283441 !important;
     overflow: hidden;
+    text-overflow: ellipsis;
     text-decoration: none;
+    align-items: center;
     /*
     font-family: Arial;
     font-size: 12px;
     */
 }
+
+.niceCountryInputMenuDropdownContent a span {
+    height: 30px;
+    line-height: 30px;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*
+    font-family: Arial;
+    font-size: 12px;
+    */
+}
+
 
 .niceCountryInputMenuDropdownContent a:hover {
     background-color: gray !important;
@@ -73,31 +94,33 @@
 }
 
 .niceCountryInputMenuFilter {
-    border: 1px solid #a8a8a8;
+    border: 1px solid #A9C0D6;
     border-top: 0;
     border-bottom: 0;
 }
 
 .niceCountryInputMenuFilter input {
     width: 100%;
-    width: calc(100% - 25px);
-    margin: 5px;
+    width: calc(100% - 15px);
+    margin: 7px;
     padding: 5px;
+    border: 1px solid gray;
+    border-radius: 4px;
 }
 
 .niceCountryInputMenuCountryFlag {
     border: 1px solid #d3d3d3;
-    width: 18px;
-    height: 13px;
     margin-left: 5px;
     margin-right: 5px;
+    align-self: center;
+    width: 24px;
 }
 
 .niceCountryInputMenuCountryNoFlag {
     display: inline-block;
-    border: 1px solid black;
+    border: 1px solid #283441;
     background: white;
-    color: black;
+    color: #283441;
     line-height: 15px;
     text-align: center;
     width: 22px;
