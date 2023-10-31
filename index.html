@@ -38,7 +38,7 @@
 	<script src="niceCountryInput.js"></script>
     <link rel="stylesheet" type="text/css" href="niceCountryInput.css">
 	
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body>
@@ -55,10 +55,10 @@
 				<p>Closed Questions</p>
 			</div>
 			</div> -->
-			<div class="w-full flex items-center justify-center block top-2 left-0 fixed pr-14 z-50">
-				<div class="w-full flex flex-row gap-4 items-center absolute top-0 align-center justify-center">
-					<button id="reset-viewBox" class="p-2 relative left-48 bg-mblue200 rounded hover:bg-mblue400 active:bg-mblue500" style="color: #4F6882;"><i class="fa-regular fa-globe mr-2"></i>Reset</button>
-					<div class="niceCountryInputSelector absolute" style="width: 280px; top:0;" data-selectedcountry="_nf" data-showcontinentsonly="false" data-showflags="true"
+			<div class="w-screen flex items-center justify-center block top-2 fixed z-50">
+				<div class="w-auto flex flex-row flex-row-reverse gap-4 items-start relative">
+					<button id="reset-viewBox" class="p-2 relative right-2 top-0 bg-mblue200 rounded hover:bg-mblue400 active:bg-mblue500" style="color: #4F6882;"><i class="fa-regular fa-globe mr-2"></i>Reset</button>
+					<div class="niceCountryInputSelector relative" style="width:260px; top:0;border-radius: 6px;" data-selectedcountry="_nf" data-showcontinentsonly="false" data-showflags="true"
 					data-i18nnofilter="Select a country" data-i18nfilter="Filter" data-onchangecallback="onChangeCallback" data-showspecial="true" />
 				</div>
 			</div>
@@ -1086,7 +1086,7 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 }
 
 function generateEmbed(id) {
-    return '<div class="embedWrapper drop-shadow"><iframe src="https://www.metaculus.com/questions/question_embed/' + id + '/?theme=light" style="height:375px; width:100%; max-width:450px"></iframe></div>';
+    return '<div class="embedWrapper drop-shadow"><iframe src="https://www.metaculus.com/questions/question_embed/' + id + '/?theme=light" style="height:375px; width:100%; max-width:100vw"></iframe></div>';
 }
 
 function constructQuestionLists(country_search, questions_list) {

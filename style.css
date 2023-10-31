@@ -1,9 +1,10 @@
 html,body {
 	height: auto;
-	min-height: 100%;
+	min-height: 100vh;
 	padding-bottom: 100px;
 	font-family: sans-serif;
 	background: #EFF4F4;
+	width:100vw;
 }
 
 h1 {
@@ -34,7 +35,7 @@ h1 {
 
 #world {
 	width:100%;
-	padding-top:42px;
+	padding-top:38px;
 }
 
 #mapContainer {
@@ -183,6 +184,19 @@ h1 {
 svg {
 	overflow: visible;
 }
+
+@media only screen and (max-width: 600px) {
+	html, body {
+		overflow-x: hidden;
+	  }
+	  body {
+		position: relative
+	  }
+	.embedWrapper {
+		width: 90vw;
+		max-width: 90vw;
+	}
+  }
 
 /*
 .stateBox {
