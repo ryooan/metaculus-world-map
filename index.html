@@ -494,6 +494,10 @@
 		<option value="all">All Topics</option>
 		<option value="elections">Elections</option>
 		<option value="geopolitics">Geopolitics</option>
+		<option value="armed_conflicts">Armed Conflicts</option>
+		<option value="biosecurity">Biosecurity</option>
+		<option value="politics">Politics</option>
+		<option value="economy">Economy</option>
 	</select>
 </div>
 
@@ -716,7 +720,6 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 			
 			const stateAbbrev = stateInfo.abbreviation;
 			const stateName = stateInfo.name;
-			//console.log(stateAbbrev);
 			
 			//add state labels
 			const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -845,7 +848,6 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 				const stateRow = crystal_ball.find(row => row[cbStateNameIndex].toLowerCase() === stateName.toLowerCase());
 				
 				const chances = stateRow[cbChancesIndex];
-				//console.log(chances);
 				
 				const chanceLookup = {
 				  "Safe R": 0.95,
@@ -925,9 +927,7 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 
 		// Check if the probability is below 0.5 (or 50%)
 		if (probability < 0.5) {
-			//console.log("votes is " + votes + " and DSum starts as " + DSum);
 			DSum = DSum + votes;
-			//console.log("DSum ends as " + DSum);
 		} else if (probability > 0.5) {
 			RSum = RSum + votes;
 		}
@@ -944,8 +944,6 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 		const chance = barInfo[3];
 		const probability = barInfo[4];
 		const color = barInfo[5];
-		
-		//console.log(probability);
 		
 		const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
 		group.setAttribute("class","evGroup");
@@ -1023,7 +1021,6 @@ function addStateTexts(api_data, electoral_votes, crystal_ball) {
 		
 			const stateAbbrev = stateInfo.abbreviation;
 			const stateName = stateInfo.name;
-			console.log(stateAbbrev);
 			
 			const evGroup = document.getElementById(stateAbbrev + "-EVText");
 			// Get all text children within the group
@@ -1222,38 +1219,13 @@ function constructQuestionLists(country_search, questions_list) {
 
 		// Replace the original array with the new array
 		questionsByCountry[countryCode] = newArray;
-		
-		//change the color of the country based on question status
-		
-		// Decide the color based on the statuses of the questions
-		let fillColor;
-		
-		if (hasOpen) {
-			fillColor = '#88A9C9';  // If there are OPEN questions
-		} else if (hasClosedOrResolved) {
-			//fillColor = '#88A9C9';  // If there are CLOSED or RESOLVED questions but no OPEN ones
-		}
-		
-		const currentCountry = svgDoc.getElementById(countryCode.toLowerCase());
-
-		if (currentCountry) {
-			currentCountry.style.fill = fillColor;
-			
-			const pathElements = currentCountry.querySelectorAll('path');
-			
-			if (pathElements) {
-				pathElements.forEach(function(pathElement) {
-					pathElement.style.fill = fillColor;
-				});
-			}
-		}
 	}
 	
 	return [questionsByCountry, questions_list];
 }
 
 //initialize the questionsLoadedCounter and index of q IDs
-const questionsLoadedCounter = {};  
+var questionsLoadedCounter = {};  
 
 
 function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'all', questionStatus = null, batchSize = 20) {
@@ -1281,24 +1253,24 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
         if (countryDiv && questionsByCountry[countryCode]) {
             let questionsToLoad;
 
-			console.log(selectedTopic);
-
-			console.log(questionsByCountry[countryCode]);
-
 			const topicIndex = questions_list[0].indexOf(selectedTopic);
 
 			if (selectedTopic !== 'all') {
 				questionsToLoad = questionsByCountry[countryCode]
-					.filter(q => q[topicIndex] === 'True'); // Assuming the topic columns have 'True' to indicate inclusion
+					.filter(q => q[topicIndex] === 'True');
+			} else {
+				questionsToLoad = questionsByCountry[countryCode];
 			}
-			console.log(questionsToLoad);
+
+			//make a copy before filtering and slicing to check if load more button is needed later on
+			let questionsForCounting = questionsToLoad;
 
             if (status === 'Open') {
-                questionsToLoad = questionsByCountry[countryCode]
+                questionsToLoad = questionsToLoad
                     .filter(q => q[questionStatusIndex] === 'OPEN')
                     .slice(start, end);
             } else { // 'Closed'
-                questionsToLoad = questionsByCountry[countryCode]
+                questionsToLoad = questionsToLoad
                     .filter(q => q[questionStatusIndex] === 'CLOSED' || q[questionStatusIndex] === 'RESOLVED')
                     .slice(start, end);
             }
@@ -1338,14 +1310,11 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
 			let totalQuestions;
 			
 			if (status === 'Open') {
-                totalQuestions = questionsByCountry[countryCode].filter(q => q[questionStatusIndex] === 'OPEN').length;
+                totalQuestions = questionsForCounting.filter(q => q[questionStatusIndex] === 'OPEN').length;
             } else { // 'Closed'
-				totalQuestions = questionsByCountry[countryCode].filter(q => q[questionStatusIndex] === 'CLOSED' || q[questionStatusIndex] === 'RESOLVED').length;
+				totalQuestions = questionsForCounting.filter(q => q[questionStatusIndex] === 'CLOSED' || q[questionStatusIndex] === 'RESOLVED').length;
             }
 			
-			console.log("total questions");
-			console.log(totalQuestions);
-			console.log(end);
             if (end >= totalQuestions) {
                 loadMoreButton.style.display = 'none';
             } else {
@@ -1435,16 +1404,13 @@ let sharedState = {
 const timeoutIds = {};
 
 function focusCountry(event, focusedCountry, svgDoc, svg, svgElement, hoverText, countrybbox, countryCode, questionsByCountry) {
-	
-	console.log(countryCode);
-	console.log(questionsByCountry[countryCode]);
+
+	clearIframes(sharedState.countryCode);
 	
 	//change the country shown in the selector
 	//check if event.changeSource exists, if it doesn't it means this came from a click
 	//coming from a click means we need to update the country selector
-	console.log(event.changeSource);
 	if (!event.changeSource) {
-		console.log("getting here");
 		selectCountryByIsoCode(countryCode);
 	}
 	
@@ -1473,8 +1439,9 @@ function focusCountry(event, focusedCountry, svgDoc, svg, svgElement, hoverText,
 		countryDivClosed.setAttribute('class', 'forecastListCountry');
 		openQuestionsDiv.insertAdjacentElement('afterend', countryDivOpen);
 		closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
-		loadCountryIframes(countryCode, questionsByCountry, document.getElementById('topicFilter').value);
 	}
+
+	loadCountryIframes(countryCode, questionsByCountry, document.getElementById('topicFilter').value);
 	
 	countryDivOpen.style.display = 'inline-block';
 	countryDivClosed.style.display = 'inline-block';
@@ -1588,7 +1555,7 @@ function focusCountry(event, focusedCountry, svgDoc, svg, svgElement, hoverText,
 		svg.setAttribute("viewBox", viewBoxValue);
 		
 		//if US is focus hide world map and show US stuff
-		if (countryCode.toLowerCase() === 'us') {
+		if (countryCode.toLowerCase() === 'us' && document.getElementById('topicFilter').value === 'elections') {
 			document.getElementById("WorldContainer").style.display = 'none';
 			document.getElementById("USContainer").style.display = 'block';
 			document.getElementById("USContainer").style.visibility = 'visible';
@@ -1600,11 +1567,19 @@ function focusCountry(event, focusedCountry, svgDoc, svg, svgElement, hoverText,
 
 	// Initialize the animation
 	requestAnimationFrame(animateViewBox);
-	
-	// Update the URL with the clicked country's code
-	const newUrlParams = new URLSearchParams(window.location.search);
-	newUrlParams.set('country', countryCode.toLowerCase());
-	window.history.replaceState(null, null, '?' + newUrlParams.toString());
+
+	updateUrlParams(countryCode);
+
+	//add the country to the shared state to update for use when clicking away
+	sharedState = {
+		focusedCountry: focusedCountry,
+		svgDoc: svgDoc,
+		svg: svg,
+		svgElement: svgElement,
+		hoverText: hoverText,
+		countrybbox: countrybbox,
+		countryCode: countryCode
+	};
 	
 }
 
@@ -1657,8 +1632,9 @@ function addCountryHover(country_names, questionsByCountry) {
 	document.getElementById("reset-viewBox").addEventListener("click", resetView);
 	document.getElementById("reset-viewBox1").addEventListener("click", resetView);
 	
-	
 	function resetView(event) {
+
+		clearIframes('world');
 	
 		// change country selector to show none
 		selectCountryByIsoCode('_nf');
@@ -1676,7 +1652,6 @@ function addCountryHover(country_names, questionsByCountry) {
 		});
 		
 		if (focusedCountry.svgElement) {
-			console.log(focusedCountry);
 			// Re-attach the event listeners to the previously focused country
 			focusedCountry.svgElement.addEventListener("mouseover", focusedCountry.countryMouseOverSvg);
 			focusedCountry.svgElement.addEventListener("mouseout", focusedCountry.countryMouseOutSvg);
@@ -1703,7 +1678,7 @@ function addCountryHover(country_names, questionsByCountry) {
 		document.getElementById("WorldContainer").style.display = 'block';
 		
 		// remove the url parameters
-		window.history.replaceState({}, document.title, window.location.pathname);
+		updateUrlParams('world');
 		
 		// create divs and load the iframes for the overall world
 		//get iframe div if it exists
@@ -1721,11 +1696,23 @@ function addCountryHover(country_names, questionsByCountry) {
 			countryDivClosed.setAttribute('class', 'forecastListCountry');
 			openQuestionsDiv.insertAdjacentElement('afterend', countryDivOpen);
 			closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
-			loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 		}
+
+		loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 
 		countryDivOpen.style.display = 'inline-block';
 		countryDivClosed.style.display = 'inline-block';
+
+		//set sharedState values to null since world is now the focus
+		sharedState = {
+			focusedCountry: null,
+			svgDoc: null,
+			svg: null,
+			svgElement: null,
+			hoverText: null,
+			countrybbox: null,
+			countryCode: null
+		};
 	}
 	
 	// Initialize zoom based on URL parameter
@@ -1812,8 +1799,9 @@ function addCountryHover(country_names, questionsByCountry) {
 		countryDivClosed.setAttribute('class', 'forecastListCountry');
 		openQuestionsDiv.insertAdjacentElement('afterend', countryDivOpen);
 		closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
-		loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 	}
+
+	loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 
 	countryDivOpen.style.display = 'inline-block';
 	countryDivClosed.style.display = 'inline-block';
@@ -1898,12 +1886,12 @@ async function loadAllDatasets(fileNames) {
 		[questionsByCountry, questions_list] = constructQuestionLists(datasets['./country_search.csv'], datasets['./questions_list.csv']);
 		addCountryHover(datasets['./country_names.csv'], questionsByCountry);
 		addEmbedForecasts(datasets['./api_data.csv'],datasets['./r_nominee.csv'],datasets['./d_nominee.csv']);
+
+		setDropdownFromUrl();
 	} else {
 		console.error("Some datasets could not be loaded.");
 	}
   
-	
-	
 })();
 	
 function selectCountryByIsoCode(isoCode) {
@@ -1936,7 +1924,6 @@ function onChangeCallback(ctr, isSelector){
 	if (isSelector) {
 		console.log(isSelector);
 		if (ctr !== '_NF' && isSelector === "yes") {
-			console.log("is selector is yes");
 			// Probably inefficient to create obj and svgDoc multiple places
 			// Get the object element
 			const obj = document.getElementById("world");
@@ -1958,7 +1945,7 @@ function onChangeCallback(ctr, isSelector){
 	}
 }
 
-//load country selector
+//load country selector and update topic dropdown
 document.addEventListener("DOMContentLoaded", function(event) { 
 	document.querySelectorAll(".niceCountryInputSelector").forEach(element => new NiceCountryInput(element).init());
 });
@@ -1967,6 +1954,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
 document.getElementById('topicFilter').addEventListener('change', function() {
   const selectedTopic = this.value;
   const countryCode = sharedState.countryCode;
+
+  updateUrlParams(countryCode);
+
+	//if US and topic is elections, show elections map
+	if (countryCode) {
+		if (countryCode.toLowerCase() === 'us' && selectedTopic === 'elections') {
+			document.getElementById("WorldContainer").style.display = 'none';
+			document.getElementById("USContainer").style.display = 'block';
+			document.getElementById("USContainer").style.visibility = 'visible';
+			document.getElementById("USContainer").style.position = 'static';
+			document.getElementById("USForecasts").style.display = 'block';
+		} else if (countryCode.toLowerCase() === 'us') {
+			//show world stuff and hide US stuff
+			document.getElementById("USContainer").style.display = 'none';
+			document.getElementById("USForecasts").style.display = 'none';
+			document.getElementById("WorldContainer").style.display = 'block';
+		}
+	}
   
   // Clear existing iframes
 
@@ -1977,20 +1982,122 @@ document.getElementById('topicFilter').addEventListener('change', function() {
 	clearIframes(countryCode);
 	loadCountryIframes(countryCode, questionsByCountry,selectedTopic, null, 20);
   }
+
+  //update country colors
+  changeCountryColors(selectedTopic);
   
 });
 
 function clearIframes(countryCode) {
-	console.log(countryCode);
+
+	//need to reset the counter used for load more.
+	//This wipes everything in it, but that's fine because in the current implementation it removes iframes from every country not focused anyway.
+	questionsLoadedCounter = {};
+
 	const countryDivOpen = document.getElementById(`${countryCode}_OpenQuestions`);
 	const countryDivClosed = document.getElementById(`${countryCode}_ClosedQuestions`);
 
 	if (!countryDivOpen) {
-		document.getElementById('world_OpenQuestions');
-		document.getElementById('world_ClosedQuestions');
+		document.getElementById('world_OpenQuestions').innerHTML = '';
+		document.getElementById('world_ClosedQuestions').innerHTML = '';
 	} else {
 		countryDivOpen.innerHTML = '';
 		countryDivClosed.innerHTML = '';
+	}
+}
+
+function updateUrlParams(countryCode) {
+
+	const topicValue = document.getElementById('topicFilter').value;
+
+	const newUrlParams = new URLSearchParams(window.location.search);
+
+	if (!countryCode || countryCode === 'world') {
+		newUrlParams.delete('country');
+	} else {
+		newUrlParams.set('country', countryCode.toLowerCase());
+	}
+
+	if (topicValue === 'all') {
+		newUrlParams.delete('topic');
+	} else {
+		newUrlParams.set('topic', topicValue);
+	}
+
+	if ([...newUrlParams].length > 0) {
+		console.log("getting here");
+		window.history.replaceState(null, null, '?' + newUrlParams.toString());
+	} else {
+		console.log("no url params")
+		window.history.replaceState(null, null, location.pathname);
+	}
+}
+
+function setDropdownFromUrl() {
+
+	const urlParams = new URLSearchParams(window.location.search);
+
+	const topicValue = urlParams.get('topic') || 'all';
+
+	// If there's a topic parameter, set the dropdown to that value
+	if (topicValue) {
+		const topicDropdown = document.getElementById('topicFilter');
+		topicDropdown.value = topicValue.toLowerCase();
+	}
+
+	//update country colors
+	changeCountryColors(topicValue);
+}
+
+function changeCountryColors(selectedTopic) {
+	//change the color of the country based on question status
+
+	const obj = document.getElementById("world");
+	const svgDoc = obj.contentDocument;
+
+	const topicIndex = questions_list[0].indexOf(selectedTopic);
+	const statusIndex = questions_list[0].indexOf('active');
+	
+	for (const countryCode in questionsByCountry) {
+		// Decide the color based on the statuses of the questions
+		let fillColor;
+		let filteredOpenQuestions;
+		let filteredClosedResolvedQuestions;
+
+		if (selectedTopic !== 'all') {
+			filteredOpenQuestions = questionsByCountry[countryCode]
+				.filter(q => q[topicIndex] === 'True' && q[statusIndex] === 'OPEN');
+			filteredClosedResolvedQuestions = questionsByCountry[countryCode]
+				.filter(q => q[topicIndex] === 'True' && (q[statusIndex] === 'CLOSED' || q[statusIndex] === 'RESOLVED'));
+		} else {
+			filteredOpenQuestions = questionsByCountry[countryCode]
+				.filter(q => q[statusIndex] === 'OPEN');
+			filteredClosedResolvedQuestions = questionsByCountry[countryCode]
+				.filter(q => q[statusIndex] === 'CLOSED' || q[statusIndex] === 'RESOLVED');
+		}
+		
+		if (filteredOpenQuestions.length > 0) {
+			fillColor = '#88A9C9';  // If there are OPEN questions
+		} else if (filteredClosedResolvedQuestions.length > 0) {
+			//fillColor = '#88A9C9';  // If there are CLOSED or RESOLVED questions but no OPEN ones
+		} else {
+			//set fill color so that previous fill color is overwritten if filter has nothing for the country
+			fillColor = '#D7E4F2';
+		}
+		
+		const currentCountry = svgDoc.getElementById(countryCode.toLowerCase());
+
+		if (currentCountry) {
+			currentCountry.style.fill = fillColor;
+			
+			const pathElements = currentCountry.querySelectorAll('path');
+			
+			if (pathElements) {
+				pathElements.forEach(function(pathElement) {
+					pathElement.style.fill = fillColor;
+				});
+			}
+		}
 	}
 }
 
