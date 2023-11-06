@@ -1263,11 +1263,14 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
             let questionsToLoad;
 
 			const topicIndex = questions_list[0].indexOf(selectedTopic);
+			console.log(topicIndex);
 
 			if (selectedTopic !== 'all') {
+				console.log("filtering by topic");
 				questionsToLoad = questionsByCountry[countryCode]
 					.filter(q => q[topicIndex] === 'True');
 			} else {
+				console.log("loading all questions");
 				questionsToLoad = questionsByCountry[countryCode];
 			}
 
@@ -2089,7 +2092,8 @@ function setDropdownFromUrl() {
 	const urlParams = new URLSearchParams(window.location.search);
 
 	const selectedTopic = urlParams.get('topic') || 'all';
-	const countryCode = urlParams.get('country') || 'world';
+	let countryCode = urlParams.get('country') || 'world';
+	countryCode = countryCode !== 'world' ? countryCode.toUpperCase() : countryCode;
 
 	console.log("setting dropdown");
 	console.log(selectedTopic);
