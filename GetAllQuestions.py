@@ -21,6 +21,7 @@ limit = 100  # Number of records per request
 seen_ids = set()
 
 while True:
+
     if loopcounter == 0:
         url = f"{base_url}&limit={limit}"
         print("Fetching data with no offset")
@@ -86,11 +87,11 @@ while True:
     loopcounter += 1
 
 #get question ids for comparisons
-
-# Initialize API URL
+#make sure to include ? and & as appropriate (limit or limit and offset will be appended without any symbol before the first one)
 match_urls = {
     "public_questions": "https://www.metaculus.com/api2/questions/?",
-    "elections": "https://www.metaculus.com/api2/questions/?search=election&"
+    "electionsExact": "https://www.metaculus.com/api2/questions/?search=\" election\"&",
+    "electionsSearch": "https://www.metaculus.com/api2/questions/?search=elect&",
 }
 
 category_search = {
@@ -112,6 +113,7 @@ for url_name, url in match_urls.items():
     limit = 100  # Number of records per request
 
     while True:
+
         if loopcounter == 0:
             request_url = f"{url}limit={limit}"
             print(f"{url_name}: Fetching data with no offset")
@@ -135,25 +137,42 @@ for url_name, url in match_urls.items():
         for row in results:
 
             custom_group = row.get("group", "N/A")
-            print(row.get("id","N/A"))
-            if row.get("id","N/A") == 19442:
-                print("Peter bone question")
-                print(f"custom_group is {custom_group}")
-                print(f"question_id is {row.get('id', 'N/A')}")
-                print(f"url name is {url_name}")
 
             #check if it's a subquestion. If custom_group is a value it is.
             # In that case it will be picked up in the subquestion portion later.
             if custom_group is None:
-                question_id = row.get("id", "N/A")
+                question_id = str(row.get("id", "N/A"))
             
                 comparison_data[url_name].append(question_id)
 
         offset += limit  # Increment the offset for the next batch
         loopcounter += 1
 
+    # Write to CSV
+    csv_filename = f"{url_name}.csv"
+    with open(csv_filename, "w", newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerows(comparison_data[url_name])
 
-csv_data[0].extend(list(match_urls.keys()))
+    print(f"CSV file has been written for {url_name}.")
+
+#make custom comparison_data as needed
+exact_values = set(comparison_data["electionsExact"])
+search_values = set(comparison_data["electionsSearch"])
+
+combined_unique_values = exact_values.union(search_values)
+
+comparison_data["elections"] = list(combined_unique_values)
+
+print("Keys before deletion:", comparison_data.keys())
+
+#delete the below after combining
+del comparison_data['electionsExact']
+del comparison_data['electionsSearch']
+
+print("Keys after deletion:", comparison_data.keys())
+
+csv_data[0].extend(list(comparison_data.keys()))
 csv_data[0].extend(list(category_search.keys()))
 
 question_id_idx = csv_data[0].index('question_id')
@@ -161,11 +180,11 @@ parent_idx = csv_data[0].index('parent_question')
 
 # Loop over csv_data and append the new columns for matches
 for row in csv_data[1:]:  # Skip the header row
-    question_id = row[question_id_idx]
-    parent_question = row[parent_idx]
+    question_id = str(row[question_id_idx])
+    parent_question = str(row[parent_idx])
 
     # Check for matches in public_questions and elections
-    for key in match_urls.keys():
+    for key in comparison_data.keys():
         match = "True" if question_id in comparison_data[key] or parent_question in comparison_data[key] else ""
         row.append(match)
 

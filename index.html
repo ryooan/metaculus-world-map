@@ -490,15 +490,19 @@
 </div>
 
 <div class="dropdown">
-	<select id="topicFilter">
-		<option value="all">All Topics</option>
-		<option value="elections">Elections</option>
-		<option value="geopolitics">Geopolitics</option>
-		<option value="armed_conflicts">Armed Conflicts</option>
-		<option value="biosecurity">Biosecurity</option>
-		<option value="politics">Politics</option>
-		<option value="economy">Economy</option>
-	</select>
+	<div class="flex flex-row gap-4 mt-2 items-center justify-center">
+		<div class="w-auto flex flex-row flex-row-reverse gap-4 items-start relative">
+			<select id="topicFilter">
+				<option value="all">All Topics</option>
+				<option value="elections">Elections</option>
+				<option value="geopolitics">Geopolitics</option>
+				<option value="armed_conflicts">Armed Conflicts</option>
+				<option value="biosecurity">Biosecurity</option>
+				<option value="politics">Politics</option>
+				<option value="economy">Economy</option>
+			</select>
+		</div>
+	</div>
 </div>
 
 <div id="USForecasts">
@@ -2075,14 +2079,14 @@ function changeCountryColors(selectedTopic) {
 			filteredClosedResolvedQuestions = questionsByCountry[countryCode]
 				.filter(q => q[statusIndex] === 'CLOSED' || q[statusIndex] === 'RESOLVED');
 		}
+
+		//reset the fill color, then change it depending on question status
+		fillColor = '#D7E4F2';
 		
 		if (filteredOpenQuestions.length > 0) {
 			fillColor = '#88A9C9';  // If there are OPEN questions
 		} else if (filteredClosedResolvedQuestions.length > 0) {
 			//fillColor = '#88A9C9';  // If there are CLOSED or RESOLVED questions but no OPEN ones
-		} else {
-			//set fill color so that previous fill color is overwritten if filter has nothing for the country
-			fillColor = '#D7E4F2';
 		}
 		
 		const currentCountry = svgDoc.getElementById(countryCode.toLowerCase());

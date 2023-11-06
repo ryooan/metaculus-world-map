@@ -44,6 +44,13 @@ h1 {
 	position: relative;
 }
 
+#dropdown {
+	width:100%;
+	display: inline-block;
+	text-align: center;
+	position: relative;
+}
+
 #USButton {
 	display: inline-block;
 	text-align: center;
