@@ -43,14 +43,6 @@
 
 <body>
 
-<div class="dropdown">
-	<select id="topicFilter">
-		<option value="all">All Topics</option>
-		<option value="elections">Elections</option>
-		<option value="geopolitics">Geopolitics</option>
-	</select>
-	</div>
-
 <div id="WorldContainer">
 	<div id="mapContainer">
 		<object id="world" data="world_map.svg" type="image/svg+xml"></object>
@@ -495,6 +487,14 @@
 
 		</div>
 	</div>
+</div>
+
+<div class="dropdown">
+	<select id="topicFilter">
+		<option value="all">All Topics</option>
+		<option value="elections">Elections</option>
+		<option value="geopolitics">Geopolitics</option>
+	</select>
 </div>
 
 <div id="USForecasts">
@@ -1119,7 +1119,6 @@ function constructQuestionLists(country_search, questions_list) {
 		countrySearchTerms[code] = terms;
 	}
 	
-	console.log(questions_list);
 	const questionsHeader = questions_list[0];
 	const questionTitleIndex = questionsHeader.indexOf('title');
 	const questionTypeIndex = questionsHeader.indexOf('type');
@@ -1141,10 +1140,6 @@ function constructQuestionLists(country_search, questions_list) {
 
 	// Loop through questions to check if they match any country's search terms
 	questions_list.forEach((question) => {
-		console.log(questionsHeader);
-		console.log(question);
-		console.log(questionTypeIndex);
-		console.log(question[questionTypeIndex]);
 		if (question[questionTypeIndex] === "forecast" || question[questionTypeIndex].includes("group")) {
 			
 			//add every question to the overall "world" countryCode
@@ -1254,7 +1249,7 @@ function constructQuestionLists(country_search, questions_list) {
 		}
 	}
 	
-	return questionsByCountry;
+	return [questionsByCountry, questions_list];
 }
 
 //initialize the questionsLoadedCounter and index of q IDs
@@ -1264,8 +1259,8 @@ const questionsLoadedCounter = {};
 function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'all', questionStatus = null, batchSize = 20) {
 	
 	console.log("loading iframes");
-	const questionIDIndex = 3;
-	const questionStatusIndex = 6;
+	const questionIDIndex = questions_list[0].indexOf("question_id");
+	const questionStatusIndex = questions_list[0].indexOf("active");
 
 	const statuses = questionStatus ? [questionStatus] : ['Open', 'Closed'];
 	
@@ -1286,6 +1281,18 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
         if (countryDiv && questionsByCountry[countryCode]) {
             let questionsToLoad;
 
+			console.log(selectedTopic);
+
+			console.log(questionsByCountry[countryCode]);
+
+			const topicIndex = questions_list[0].indexOf(selectedTopic);
+
+			if (selectedTopic !== 'all') {
+				questionsToLoad = questionsByCountry[countryCode]
+					.filter(q => q[topicIndex] === 'True'); // Assuming the topic columns have 'True' to indicate inclusion
+			}
+			console.log(questionsToLoad);
+
             if (status === 'Open') {
                 questionsToLoad = questionsByCountry[countryCode]
                     .filter(q => q[questionStatusIndex] === 'OPEN')
@@ -1295,15 +1302,6 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
                     .filter(q => q[questionStatusIndex] === 'CLOSED' || q[questionStatusIndex] === 'RESOLVED')
                     .slice(start, end);
             }
-			
-			console.log(questionsToLoad);
-
-			//filter questions to load based on dropdown selection
-			if (selectedTopic !== 'all') {
-				questionsToLoad = questionsToLoad.filter(q => q.topic === selectedTopic);
-			}
-
-			console.log(questionsToLoad);
 
             questionsToLoad.forEach((question) => {
                 const questionId = question[questionIDIndex];
@@ -1897,7 +1895,7 @@ async function loadAllDatasets(fileNames) {
 	if (Object.keys(datasets).length === fileNames.length) {
 		// Access datasets by name for clarity
 		addStateTexts(datasets['./api_data.csv'], datasets['./Electoral Votes.csv'], datasets['./Crystal Ball.csv']);
-		questionsByCountry = constructQuestionLists(datasets['./country_search.csv'], datasets['./questions_list.csv']);
+		[questionsByCountry, questions_list] = constructQuestionLists(datasets['./country_search.csv'], datasets['./questions_list.csv']);
 		addCountryHover(datasets['./country_names.csv'], questionsByCountry);
 		addEmbedForecasts(datasets['./api_data.csv'],datasets['./r_nominee.csv'],datasets['./d_nominee.csv']);
 	} else {
@@ -1971,19 +1969,29 @@ document.getElementById('topicFilter').addEventListener('change', function() {
   const countryCode = sharedState.countryCode;
   
   // Clear existing iframes
-  clearIframes(countryCode);
 
-  // Load new iframes based on selected topic
-  loadCountryIframes(countryCode, questionsByCountry,selectedTopic, null, 20);
+  if (!countryCode) {
+	clearIframes("world");
+	loadCountryIframes("world", questionsByCountry,selectedTopic, null, 20);
+  } else {
+	clearIframes(countryCode);
+	loadCountryIframes(countryCode, questionsByCountry,selectedTopic, null, 20);
+  }
+  
 });
 
 function clearIframes(countryCode) {
-  const countryDivOpen = document.getElementById(`${countryCode}_OpenQuestions`);
-  const countryDivClosed = document.getElementById(`${countryCode}_ClosedQuestions`);
-  
-  // Assuming the iframes are direct children of these divs
-  countryDivOpen.innerHTML = '';
-  countryDivClosed.innerHTML = '';
+	console.log(countryCode);
+	const countryDivOpen = document.getElementById(`${countryCode}_OpenQuestions`);
+	const countryDivClosed = document.getElementById(`${countryCode}_ClosedQuestions`);
+
+	if (!countryDivOpen) {
+		document.getElementById('world_OpenQuestions');
+		document.getElementById('world_ClosedQuestions');
+	} else {
+		countryDivOpen.innerHTML = '';
+		countryDivClosed.innerHTML = '';
+	}
 }
 
 </script>
