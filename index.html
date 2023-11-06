@@ -1236,6 +1236,9 @@ var questionsLoadedCounter = {};
 function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'all', questionStatus = null, batchSize = 20) {
 	
 	console.log("loading iframes");
+	console.log(countryCode);
+	console.log("selected topic");
+	console.log(selectedTopic);
 	const questionIDIndex = questions_list[0].indexOf("question_id");
 	const questionStatusIndex = questions_list[0].indexOf("active");
 
@@ -1243,9 +1246,6 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
 	
 	statuses.forEach(status => {
         const countryDiv = document.getElementById(`${countryCode}_${status}Questions`);
-        
-        // get loadMoreButton if it exists
-        let loadMoreButton = countryDiv.querySelector('.load-more');
 
         const counterKey = `${countryCode}_${status}`;
         if (!questionsLoadedCounter[counterKey]) {
@@ -1256,6 +1256,10 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
         const end = start + batchSize;
 
         if (countryDiv && questionsByCountry[countryCode]) {
+
+			// get loadMoreButton if it exists
+			let loadMoreButton = countryDiv.querySelector('.load-more');
+
             let questionsToLoad;
 
 			const topicIndex = questions_list[0].indexOf(selectedTopic);
@@ -1302,6 +1306,7 @@ function loadCountryIframes(countryCode, questionsByCountry, selectedTopic = 'al
                 loadMoreButton.innerText = 'Load More';
 
                 loadMoreButton.addEventListener('click', () => {
+					console.log("loading from load more button");
                     loadCountryIframes(countryCode, questionsByCountry, document.getElementById('topicFilter').value, status, batchSize);
                 });
 
@@ -1446,6 +1451,7 @@ function focusCountry(event, focusedCountry, svgDoc, svg, svgElement, hoverText,
 		closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
 	}
 
+	console.log("loading from focuscountry");
 	loadCountryIframes(countryCode, questionsByCountry, document.getElementById('topicFilter').value);
 	
 	countryDivOpen.style.display = 'inline-block';
@@ -1703,6 +1709,7 @@ function addCountryHover(country_names, questionsByCountry) {
 			closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
 		}
 
+		console.log("loading world from reset view");
 		loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 
 		countryDivOpen.style.display = 'inline-block';
@@ -1806,7 +1813,8 @@ function addCountryHover(country_names, questionsByCountry) {
 		closedQuestionsDiv.insertAdjacentElement('afterend', countryDivClosed);
 	}
 
-	loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
+	//console.log("loading world from add country hover");
+	//loadCountryIframes("world", questionsByCountry, document.getElementById('topicFilter').value);
 
 	countryDivOpen.style.display = 'inline-block';
 	countryDivClosed.style.display = 'inline-block';
@@ -1900,6 +1908,16 @@ async function loadAllDatasets(fileNames) {
   return datasets;
 }
 
+let domContentLoaded = false;
+let datasetsLoaded = false;
+
+function onBothContentLoaded() {
+  if (domContentLoaded && datasetsLoaded) {
+	console.log("both are loaded")
+    setDropdownFromUrl();
+  }
+}
+
 (async () => {
 	const fileNames = ['./api_data.csv', './Electoral Votes.csv', './Crystal Ball.csv', './r_nominee.csv', './d_nominee.csv', './country_names.csv', './country_search.csv', './questions_list.csv'];
 
@@ -1912,7 +1930,8 @@ async function loadAllDatasets(fileNames) {
 		addCountryHover(datasets['./country_names.csv'], questionsByCountry);
 		addEmbedForecasts(datasets['./api_data.csv'],datasets['./r_nominee.csv'],datasets['./d_nominee.csv']);
 
-		setDropdownFromUrl();
+		datasetsLoaded = true;
+    	onBothContentLoaded();
 	} else {
 		console.error("Some datasets could not be loaded.");
 	}
@@ -1972,7 +1991,9 @@ function onChangeCallback(ctr, isSelector){
 
 //load country selector and update topic dropdown
 document.addEventListener("DOMContentLoaded", function(event) { 
+	domContentLoaded = true;
 	document.querySelectorAll(".niceCountryInputSelector").forEach(element => new NiceCountryInput(element).init());
+	onBothContentLoaded();
 });
 
 //listen for topic selection
@@ -2002,9 +2023,11 @@ document.getElementById('topicFilter').addEventListener('change', function() {
 
   if (!countryCode) {
 	clearIframes("world");
+	console.log("loading world from topic selector change listener");
 	loadCountryIframes("world", questionsByCountry,selectedTopic, null, 20);
   } else {
 	clearIframes(countryCode);
+	console.log("loading country from topic selector change listener");
 	loadCountryIframes(countryCode, questionsByCountry,selectedTopic, null, 20);
   }
 
@@ -2033,28 +2056,31 @@ function clearIframes(countryCode) {
 
 function updateUrlParams(countryCode) {
 
-	const topicValue = document.getElementById('topicFilter').value;
+	if (domContentLoaded && datasetsLoaded) {
+		console.log("both are loaded, updating url params")
+		const topicValue = document.getElementById('topicFilter').value;
 
-	const newUrlParams = new URLSearchParams(window.location.search);
+		const newUrlParams = new URLSearchParams(window.location.search);
 
-	if (!countryCode || countryCode === 'world') {
-		newUrlParams.delete('country');
-	} else {
-		newUrlParams.set('country', countryCode.toLowerCase());
-	}
+		if (!countryCode || countryCode === 'world') {
+			newUrlParams.delete('country');
+		} else {
+			newUrlParams.set('country', countryCode.toLowerCase());
+		}
 
-	if (topicValue === 'all') {
-		newUrlParams.delete('topic');
-	} else {
-		newUrlParams.set('topic', topicValue);
-	}
+		if (topicValue === 'all') {
+			newUrlParams.delete('topic');
+		} else {
+			newUrlParams.set('topic', topicValue);
+		}
 
-	if ([...newUrlParams].length > 0) {
-		console.log("getting here");
-		window.history.replaceState(null, null, '?' + newUrlParams.toString());
-	} else {
-		console.log("no url params")
-		window.history.replaceState(null, null, location.pathname);
+		if ([...newUrlParams].length > 0) {
+			console.log("getting here");
+			window.history.replaceState(null, null, '?' + newUrlParams.toString());
+		} else {
+			console.log("no url params")
+			window.history.replaceState(null, null, location.pathname);
+		}
 	}
 }
 
@@ -2062,16 +2088,50 @@ function setDropdownFromUrl() {
 
 	const urlParams = new URLSearchParams(window.location.search);
 
-	const topicValue = urlParams.get('topic') || 'all';
+	const selectedTopic = urlParams.get('topic') || 'all';
+	const countryCode = urlParams.get('country') || 'world';
 
-	// If there's a topic parameter, set the dropdown to that value
-	if (topicValue) {
-		const topicDropdown = document.getElementById('topicFilter');
-		topicDropdown.value = topicValue.toLowerCase();
-	}
+	console.log("setting dropdown");
+	console.log(selectedTopic);
+	console.log(countryCode);
 
 	//update country colors
-	changeCountryColors(topicValue);
+	changeCountryColors(selectedTopic);
+
+	//if US and topic is elections, show elections map
+	if (countryCode) {
+		if (countryCode.toLowerCase() === 'us' && selectedTopic === 'elections') {
+			document.getElementById("WorldContainer").style.display = 'none';
+			document.getElementById("USContainer").style.display = 'block';
+			document.getElementById("USContainer").style.visibility = 'visible';
+			document.getElementById("USContainer").style.position = 'static';
+			document.getElementById("USForecasts").style.display = 'block';
+		} else if (countryCode.toLowerCase() === 'us') {
+			//show world stuff and hide US stuff
+			document.getElementById("USContainer").style.display = 'none';
+			document.getElementById("USForecasts").style.display = 'none';
+			document.getElementById("WorldContainer").style.display = 'block';
+		}
+	}
+
+	if (!countryCode) {
+		clearIframes("world");
+		console.log("loading world from set dropdown from url");
+		loadCountryIframes("world", questionsByCountry,selectedTopic, null, 20);
+	} else {
+		console.log('getting here');
+		clearIframes(countryCode);
+		console.log("loading country from set dropdown from url");
+		loadCountryIframes(countryCode, questionsByCountry,selectedTopic, null, 20);
+	}
+
+	// If there's a topic parameter, set the dropdown to that value
+	if (selectedTopic) {
+		console.log("getting to selected topic");
+		const topicDropdown = document.getElementById('topicFilter');
+		topicDropdown.value = selectedTopic.toLowerCase();
+	}
+
 }
 
 function changeCountryColors(selectedTopic) {
