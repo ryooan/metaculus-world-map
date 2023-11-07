@@ -1,11 +1,11 @@
 import requests
 import csv
-
-# Your auth token (replace with the actual token string)
-auth_token = '4d39dd5fb8fcca0107fff5f492c488c0a19c456a'
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # The header that includes the auth token
-headers = { 'Authorization' : "Token %s" % auth_token }
+headers = { 'Authorization' : "Token %s" % os.environ.get('AUTH_TOKEN') }
 
 # Initialize API URL
 urls = {
