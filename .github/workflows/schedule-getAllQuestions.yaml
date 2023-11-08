@@ -27,7 +27,7 @@ jobs:
           
       - name: execute py script # run main.py
         env:
-          SOME_SECRET: ${{ secrets.SOME_SECRET }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
         run: python GetAllQuestions.py
           
       - name: commit files
