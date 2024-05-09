@@ -1142,7 +1142,7 @@ function constructQuestionLists(country_search, questions_list) {
 
 	// Loop through questions to check if they match any country's search terms
 	questions_list.forEach((question) => {
-		if (question[questionTypeIndex] === "forecast" || question[questionTypeIndex].includes("group")) {
+		if (question[questionTypeIndex] === "forecast" || question[questionTypeIndex].includes("group") || question[questionTypeIndex] === "multiple_choice") {
 			
 			//add every question to the overall "world" countryCode
 			questionsByCountry["world"].push(question);
@@ -1190,6 +1190,9 @@ function constructQuestionLists(country_search, questions_list) {
 			// check if group question with no fan graph
 			// if group question add the 3 top subquestions instead
 			// if it has a fan graph skip this because I want the fan graph embed
+
+			// previously the below would add the top three subquestions from a group as separate embeds since there wasn't a group display, but now there is a group display
+			/*
 			if (question[questionTypeIndex] === "group" && question[questionFanGraph] !== "True") {
 				
 				const subquestions = questions_list.filter(listQuestion => listQuestion[questionTitleIndex].includes(question[questionTitleIndex]) &&
@@ -1212,6 +1215,15 @@ function constructQuestionLists(country_search, questions_list) {
 				
 				newArray.push(question); // Add the current question to the new array if not a group
 			}
+			*/
+			
+			if (!/^[0-9]+$/.test(question[questionCustomIndex])) { 
+				//the above checks to see if the question has a group number assigned
+				//this is the case for questions which started as standalone but were later turned into groups
+				//these questions are excluded because they'll be picked up as subquestions in the above subquestion search
+				
+				newArray.push(question); // Add the current question to the new array if not a group
+			}		
 			
 			// set the status flags for the country
 			const status = question[questionStatusIndex];
