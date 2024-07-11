@@ -95,11 +95,19 @@ match_urls = {
 }
 
 category_search = {
+    "ai": "artificial-intelligence",
+    "cryptocurrencies": "cryptocurrencies",
+    "economy": "economy-business",
+    "environment": "environment-climate",
+    #elections is handled separately, via a search, since category was not always used in the past.
     "geopolitics": "geopolitics",
-    "armed_conflicts": "geopolitics--armedconflict",
-    "biosecurity": "bio--infectious-disease,bio--biosecurity",
-    "politics": "politics,law",
-    "economy": "economy,finance"
+    "health": "health-pandemics",
+    "law": "law",
+    "nuclear": "nuclear",
+    "politics": "politics",
+    "space": "space",
+    "sports": "sports-entertainment",
+    "technology": "technology",
 }
 
 comparison_data = {url_name: [] for url_name in match_urls}  # Dictionary to hold lists of data
@@ -192,11 +200,11 @@ category_idx = csv_data[0].index('category_ids')
 
 # Loop over csv_data and append the new columns for matches
 for row in csv_data[1:]:  # Skip the header row
-    categories = row[category_idx]
+    categories = row[category_idx].split(';')
 
     for search_category, search_ids in category_search.items():
         category_ids_list = [id.strip() for id in search_ids.split(',')]
-        row.append('True' if any(category_id in categories for category_id in category_ids_list) else '')
+        row.append('True' if any(category_id == category for category_id in category_ids_list for category in categories) else '')
 
 #remove all rows where "public_questions" is not true
 public_questions_idx = csv_data[0].index('public_questions')

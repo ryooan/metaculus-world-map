@@ -495,12 +495,19 @@
 		<div class="w-auto flex flex-row flex-row-reverse gap-4 items-start relative">
 			<select id="topicFilter">
 				<option value="all">All Topics</option>
+				<option value="ai">Artificial Intelligence</option>
+				<option value="cryptocurrencies">Cryptocurrencies</option>
+				<option value="economy">Economy & Business</option>
+				<option value="environment">Environment and Climate</option>
 				<option value="elections">Elections</option>
 				<option value="geopolitics">Geopolitics</option>
-				<option value="armed_conflicts">Armed Conflicts</option>
-				<option value="biosecurity">Biosecurity</option>
+				<option value="health">Health and Pandemics</option>
+				<option value="law">Law</option>
+				<option value="nuclear">Nuclear Technology & Risks</option>
 				<option value="politics">Politics</option>
-				<option value="economy">Economy</option>
+				<option value="space">Space</option>
+				<option value="sports">Sports & Entertainment</option>
+				<option value="technology">Technology</option>
 			</select>
 		</div>
 	</div>
@@ -1655,11 +1662,17 @@ function addCountryHover(country_names, questionsByCountry) {
 	const initialViewBoxValue = `${initialViewBox.x} ${initialViewBox.y} ${initialViewBox.width} ${initialViewBox.height}`;
 	
 	//on button click reset the viewBox to the initial value
-	document.getElementById("reset-viewBox").addEventListener("click", resetView);
-	document.getElementById("reset-viewBox1").addEventListener("click", resetView);
+	document.getElementById("reset-viewBox").addEventListener("click", function(event) {
+		resetView(event, sharedState.countryCode)
+	});
+	document.getElementById("reset-viewBox1").addEventListener("click", function(event) {
+		resetView(event, sharedState.countryCode)
+	});
 	
-	function resetView(event) {
+	function resetView(event, countryCode) {
 
+		console.log("clear country code: " + countryCode);
+		clearIframes(countryCode);
 		clearIframes('world');
 	
 		// change country selector to show none
