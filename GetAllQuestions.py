@@ -111,6 +111,7 @@ category_search = {
 }
 
 comparison_data = {url_name: [] for url_name in match_urls}  # Dictionary to hold lists of data
+excluded_project_ids = [3349, 3294] # project ids to exclude, currently this is just AI benchmarking and warmup since it's bot forecasts and not useful for humans, but can expand in the future
 
 # Fetch API data
 
@@ -150,8 +151,15 @@ for url_name, url in match_urls.items():
             # In that case it will be picked up in the subquestion portion later.
             if custom_group is None:
                 question_id = str(row.get("id", "N/A"))
+
+                #check what project it's part of and exclude if part of excluded project
+                projects = row.get("projects", [])
+                project_ids = [project.get("id") for project in projects]
             
-                comparison_data[url_name].append(question_id)
+                if not any(project_id in excluded_project_ids for project_id in project_ids):
+                    comparison_data[url_name].append(question_id)
+                else:
+                    print(f"Excluded question due to being in excluded project. Id: {question_id}")
 
         offset += limit  # Increment the offset for the next batch
         loopcounter += 1
